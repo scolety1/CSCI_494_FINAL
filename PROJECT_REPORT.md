@@ -1,79 +1,130 @@
 # Project Report: Thousand Sunny Fleet
 
-## Project Idea
+## Overview
 
-For my final project, I made a small simulation of an autonomous coding fleet. The framework treats each project like a "ship." Each ship has a job to do, such as building a simple website, building an interactive app, or building an analytical model.
+For my final project, I implemented a small parallel scheduling experiment based on a coding framework I have been building called **Thousand Sunny Fleet**.
 
-The main question I tested was:
+In the framework, each software project is treated like a "ship." A ship has its own job, output, and runtime. For this project, I modeled three ships as independent workers and compared sequential execution against parallel execution.
 
-> Can independent coding jobs finish faster when they run in parallel instead of one after another?
+The main question was:
 
-## Why This Fits HPC
+> If multiple independent coding jobs can be run at the same time, how much faster is that than running them one by one?
 
-This project uses at least two major class topics:
+## Why This Fits High Performance Computing
 
-1. **Parallel Programming**
-   - Multiple independent jobs run at the same time.
-   - Each job acts like a separate worker.
+This project uses multiple class concepts.
 
-2. **HPC Scaling**
-   - I compare sequential runtime against parallel wall-clock runtime.
-   - I calculate speedup and efficiency.
+### Parallel Programming
 
-I also looked at **load imbalance**, because the three jobs are different sizes.
+Each ship is an independent unit of work. In the parallel version, all three ships are launched at the same time using Python's `ThreadPoolExecutor`.
 
-## Workloads
+This is similar to an embarrassingly parallel workload because the jobs do not depend on each other.
 
-I used three fake coding projects with different difficulty levels:
+### HPC Scaling
 
-| Worker | Project | Complexity |
-|---|---|---|
-| Worker 1 | Saffron Landing | Simple static website |
-| Worker 2 | Service Brief | Interactive restaurant manager app |
-| Worker 3 | Keeper Lab | Analytical scoring/modeling tool |
+The experiment measures whether adding workers improves total runtime.
 
-The point was not to make the fake jobs perfect. The point was to model the way a fleet of AI coding agents would have uneven workloads.
-
-## Metrics
-
-The script calculates:
+I used the standard speedup and efficiency formulas:
 
 ```text
 Speedup = Sequential Time / Parallel Time
 Efficiency = Speedup / Number of Workers
-Load Imbalance = (Slowest Worker Time - Average Worker Time) / Average Worker Time
 ```
+
+### Load Imbalance
+
+The three jobs intentionally have different sizes. The simple website is smaller, the interactive app is medium-sized, and the analytical model is the largest.
+
+That means the parallel run is limited by the slowest worker. This was the most important result for me because it shows why parallel systems do not always scale perfectly.
+
+## Workloads
+
+| Worker | Project | What it represents |
+|---|---|---|
+| Saffron Landing | Simple restaurant website | A low-complexity static site |
+| Service Brief | Manager shift brief app | A medium-complexity interactive app |
+| Keeper Lab | Analytical keeper/drop model | A higher-complexity formula and data tool |
+
+I also included website screenshots because the assignment asked for relevant output or screenshots. The screenshots show the kind of visible products the fleet was modeling.
+
+## Results
+
+The generated run produced this result:
+
+| Metric | Value |
+|---|---:|
+| Workers | 3 |
+| Sequential time | 7.36 sec |
+| Parallel time | 3.50 sec |
+| Speedup | 2.10x |
+| Efficiency | 70.0% |
+| Load imbalance | 0.43 |
+| Slowest worker | Keeper Lab |
+
+## Interpretation
+
+The parallel version was clearly faster than the sequential version. Instead of waiting for each ship to finish before starting the next one, the workers were able to make progress at the same time.
+
+However, the speedup was not perfect. With three workers, perfect scaling would be close to 3x. The actual speedup was about 2.10x. The reason is that the workers did not all have the same amount of work.
+
+The Keeper Lab worker took the longest, so even after the easier jobs finished, the total parallel run still had to wait for the analytical workload. That is load imbalance.
 
 ## What Worked
 
-The parallel run finished faster than the sequential run. That makes sense because the ships are mostly independent.
-
-The project also showed why scaling is not perfect. Even if three workers run at the same time, the longest job still controls when the whole run is done.
+- The program successfully ran both sequential and parallel versions.
+- It generated a CSV of timing data.
+- It generated a runtime comparison chart.
+- It generated a worker timeline.
+- It showed real speedup from parallel execution.
+- It also showed why scaling is not perfect.
 
 ## Challenges
 
-The hardest part was explaining the difference between "running three jobs at once" and "perfect scaling." Parallelism helps, but overhead and uneven job sizes still matter.
+The biggest challenge was making the project simple enough to explain clearly while still connecting it to real HPC ideas.
 
-This was also a good reminder that a scheduling system needs more than just workers. It also needs:
+At first, I was thinking about the project mostly as an AI coding tool. But the more useful way to frame it for this class was as a scheduling and scaling experiment:
 
-- task definitions
-- health checks
-- logs
-- output reports
-- failure handling
+```text
+jobs -> workers -> runtime -> speedup -> efficiency -> bottlenecks
+```
+
+That made the HPC connection much clearer.
+
+## Relevant Screenshots and Output
+
+The project includes:
+
+- `outputs/runtime_chart.png`
+- `outputs/worker_timeline.png`
+- `outputs/results.csv`
+- `outputs/run_summary.md`
+- `outputs/website_screenshots/01-saffron-desktop.png`
+- `outputs/website_screenshots/02-saffron-mobile.png`
+- `outputs/website_screenshots/03-service-brief-desktop.png`
+- `outputs/website_screenshots/04-service-brief-mobile.png`
+- `outputs/website_screenshots/05-keeper-lab-desktop.png`
+- `outputs/website_screenshots/06-keeper-lab-mobile.png`
+
+### Runtime Chart
+
+![Runtime comparison](outputs/runtime_chart.png)
+
+### Worker Timeline
+
+![Parallel worker timeline](outputs/worker_timeline.png)
+
+### Example Website Outputs
+
+These screenshots are the visible outputs from the three simulated coding workloads.
+
+![Saffron Landing desktop screenshot](outputs/website_screenshots/01-saffron-desktop.png)
+
+![Service Brief desktop screenshot](outputs/website_screenshots/03-service-brief-desktop.png)
+
+![Keeper Lab desktop screenshot](outputs/website_screenshots/05-keeper-lab-desktop.png)
 
 ## What I Learned
 
-The biggest thing I learned is that AI coding work can be thought of like a parallel computing workload. If the jobs are independent, parallel execution can improve throughput. But the system still has normal HPC problems: overhead, bottlenecks, and load imbalance.
+The main thing I learned is that AI coding work can be viewed as a parallel computing workload. If the jobs are independent, parallel execution can improve throughput. But the same HPC issues still show up: overhead, uneven task sizes, and bottlenecks.
 
-This made the class topics feel more real to me because I could connect them to a project I actually care about.
-
-## Generated Evidence
-
-The generated evidence is in the `outputs/` folder:
-
-- `results.csv`
-- `run_summary.md`
-- `runtime_chart.png`
-- `worker_timeline.png`
-
+This project made the class concepts feel more concrete because I was able to apply them to something I am personally interested in building.
